@@ -1,0 +1,39 @@
+/* These inject tags are used for dynamically creating imports for themelet styles, you can place them where ever you like in this file. */
+
+/* inject:imports */
+/* endinject */
+
+/* This file allows you to override default styles in one central location for easier upgrade and maintenance. */
+
+$upgrade-teste-primary: #0b5fff;
+$upgrade-teste-dark: #10143a;
+
+body {
+	background-color: #f4f6fb;
+}
+
+.control-menu-container,
+#banner {
+	.navbar {
+		background-color: $upgrade-teste-dark;
+	}
+}
+
+.portlet {
+	background-color: #fff;
+	border-radius: 0.5rem;
+	box-shadow: 0 1px 4px rgba(16, 20, 58, 0.12);
+
+	.portlet-content {
+		padding: 1rem;
+	}
+}
+
+.welcome-portlet {
+	border-left: 4px solid $upgrade-teste-primary;
+	padding: 0.5rem 1rem;
+
+	h2 {
+		color: $upgrade-teste-dark;
+	}
+}

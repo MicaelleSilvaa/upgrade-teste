@@ -1,0 +1,32 @@
+services:
+  liferay:
+    image: liferay/dxp:2026.q1.10-lts
+    container_name: upgrade-teste-liferay
+    ports:
+      # Portal
+      - "8080:8080"
+      # Debug remoto (habilite com LIFERAY_JPDA_ENABLED=true)
+      - "8000:8000"
+    environment:
+      LIFERAY_JPDA_ENABLED: "false"
+    volumes:
+      # Overlay de configuracao copiado para o LIFERAY_HOME no boot
+      # (portal-ext.properties, osgi/configs, etc.)
+      - ./configs/docker:/mnt/liferay/files:ro
+      # Hot deploy: `blade gw deploy` copia os artefatos para bundles/osgi/*
+      # e o container os instala automaticamente
+      - ./bundles/osgi/modules:/opt/liferay/osgi/modules
+      - ./bundles/osgi/war:/opt/liferay/osgi/war
+      - ./bundles/osgi/client-extensions:/opt/liferay/osgi/client-extensions
+      - ./bundles/deploy:/opt/liferay/deploy
+      # Persistencia do banco Hypersonic e da document library
+      - liferay-data:/opt/liferay/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/c/portal/layout"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
+      start_period: 180s
+
+volumes:
+  liferay-data:
