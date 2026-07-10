@@ -51,9 +51,24 @@ jobs:
               echo "$dir"
           done
           echo -e "\nRun deploy on directory:"
+          # O runner roda num checkout isolado (actions-runner/_work/...), cujo
+          # bundles/ NAO e o que o container monta. Por isso, apos compilar,
+          # copiamos o artefato para dentro do container em execucao, onde o
+          # OSGi fileinstall o instala automaticamente.
+          CONTAINER=upgrade-teste-liferay
           for dir in "${DEPLOY_DIRS[@]}"; do
-              echo "-> Deploy in: $dir"
-              (cd "$dir" && blade gw clean deploy)
+              echo "-> Build in: $dir"
+              (cd "$dir" && blade gw clean assemble)
+              for jar in "$dir"/build/libs/*.jar; do
+                  [ -e "$jar" ] || continue
+                  echo "   copiando $(basename "$jar") -> $CONTAINER:/opt/liferay/osgi/modules/"
+                  docker cp "$jar" "$CONTAINER:/opt/liferay/osgi/modules/"
+              done
+              for war in "$dir"/build/libs/*.war; do
+                  [ -e "$war" ] || continue
+                  echo "   copiando $(basename "$war") -> $CONTAINER:/opt/liferay/osgi/war/"
+                  docker cp "$war" "$CONTAINER:/opt/liferay/osgi/war/"
+              done
               echo
           done
       
