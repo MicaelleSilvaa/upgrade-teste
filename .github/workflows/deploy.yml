@@ -1,8 +1,8 @@
-name: Deploy Liferay CI/CD
-run-name: ${{ github.actor }} is running CI/CD workflow default
+name: Deploy Liferay CD
+run-name: ${{ github.actor }} is running CD workflow default
 on:
   push:
-    branches: ['dev-2026.q1.x']
+    branches: ['dev-202*.q*.*']
 jobs:
   deploy-api:
     runs-on: self-hosted
@@ -20,9 +20,6 @@ jobs:
         run: |
           BEFORE="${{ github.event.before }}"
           AFTER="${{ github.sha }}"
-          # Em push normal, compara o estado anterior (before) com o novo (after).
-          # No primeiro push da branch (before = 40 zeros) ou quando o commit
-          # anterior nao existe localmente, usa o primeiro pai de AFTER.
           if [[ "$BEFORE" =~ ^0+$ ]] || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
               BASE="${AFTER}~1"
           else
@@ -51,22 +48,30 @@ jobs:
               echo "$dir"
           done
           echo -e "\nRun deploy on directory:"
-          # O runner roda num checkout isolado (actions-runner/_work/...), cujo
-          # bundles/ NAO e o que o container monta. Por isso, apos compilar,
-          # copiamos o artefato para dentro do container em execucao, onde o
-          # OSGi fileinstall o instala automaticamente.
-          CONTAINER=upgrade-teste-liferay
+          CONTAINER=$(docker ps --filter "name=liferay" --format '{{.Names}}' | head -n 1)
+          if [ -z "$CONTAINER" ]; then
+              echo "ERROR: no running container with 'liferay'"
+              echo "Active containers:"
+              docker ps --format '{{.Names}}'
+              exit 1
+          fi
+          MATCHES=$(docker ps --filter "name=liferay" --format '{{.Names}}' | wc -l)
+          if [ "$MATCHES" -gt 1 ]; then
+              echo "WARNING: more than one container with 'liferay', using the first one ($CONTAINER):"
+              docker ps --filter "name=liferay" --format '{{.Names}}'
+          fi
+          echo "Target container: $CONTAINER"
           for dir in "${DEPLOY_DIRS[@]}"; do
               echo "-> Build in: $dir"
               (cd "$dir" && blade gw clean assemble)
               for jar in "$dir"/build/libs/*.jar; do
                   [ -e "$jar" ] || continue
-                  echo "   copiando $(basename "$jar") -> $CONTAINER:/opt/liferay/osgi/modules/"
+                  echo "   Copying $(basename "$jar") -> $CONTAINER:/opt/liferay/osgi/modules/"
                   docker cp "$jar" "$CONTAINER:/opt/liferay/osgi/modules/"
               done
               for war in "$dir"/build/libs/*.war; do
                   [ -e "$war" ] || continue
-                  echo "   copiando $(basename "$war") -> $CONTAINER:/opt/liferay/osgi/war/"
+                  echo "   Copying $(basename "$war") -> $CONTAINER:/opt/liferay/osgi/war/"
                   docker cp "$war" "$CONTAINER:/opt/liferay/osgi/war/"
               done
               echo
