@@ -67,7 +67,7 @@ public class GuestSitePagesInitializer
 			new String[] {_PORTLET_ID_MESSAGE_BOARDS});
 		_addPage(
 			guestUser, group, "Micona", "/micona",
-			new String[] {_PORTLET_ID_MESSAGE_MICONA_TEST});
+			new String[] {_PORTLET_ID_WIKI});
 	}
 
 	private void _addPage(
@@ -178,11 +178,11 @@ public class GuestSitePagesInitializer
 	private static final String _PORTLET_ID_MESSAGE_BOARDS =
 		"com_liferay_message_boards_web_portlet_MBPortlet";
 
-	private static final String _PORTLET_ID_MESSAGE_MICONA_TEST =
-		"com_liferay_message_boards_web_portlet_MICONA";
-
 	private static final String _PORTLET_ID_WELCOME =
 		"com_upgradeteste_welcome_WelcomePortlet";
+
+	private static final String _PORTLET_ID_WIKI =
+		"com_liferay_wiki_web_portlet_WikiPortlet";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		GuestSitePagesInitializer.class);
