@@ -66,7 +66,7 @@ public class GuestSitePagesInitializer
 			guestUser, group, "Fórum", "/forum",
 			new String[] {_PORTLET_ID_MESSAGE_BOARDS});
 		_addPage(
-			guestUser, group, "Upgrades", "/upgrades",
+			guestUser, group, "Upgrades/Testinho", "/upgrades",
 			new String[] {_PORTLET_ID_WIKI});
 	}
 
