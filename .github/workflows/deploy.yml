@@ -1,0 +1,46 @@
+name: Deploy Liferay CI/CD
+run-name: ${{ github.actor }} is running CI/CD workflow default
+on:
+  push:
+    branches: ['dev-2026.q1.x']
+jobs:
+  deploy-api:
+    runs-on: self-hosted
+    steps:
+      - name: Coding checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Deploy bundles
+        run: |
+          FIRST_COMMIT=$(git log --format="%H" --reverse ${{ github.event.before }}..${{ github.sha }} | head -n 1)
+          echo "$FIRST_COMMIT"
+          git branch
+          CHANGED_FILES=$(git diff --name-only origin/dev-2026.q1.x "$FIRST_COMMIT")
+          echo "Modified files:"
+          echo "$CHANGED_FILES"
+          DEPLOY_DIRS=()
+          for file in $CHANGED_FILES; do
+              dirpath=$(dirname "$file")
+              while [[ "$dirpath" != "." && "$dirpath" != "/" ]]; do
+                  if [[ -f "$dirpath/build.gradle" || -f "$dirpath/package.json" ]]; then
+                      echo "Found build.gradle or package.json in: $dirpath"
+                      if [[ ! " ${DEPLOY_DIRS[@]} " =~ " ${dirpath} " ]]; then
+                          DEPLOY_DIRS+=("$dirpath")
+                      fi
+                      break
+                  fi
+                  dirpath=$(dirname "$dirpath")
+              done
+          done
+          echo -e "\nDirectories for deploy:"
+          for dir in "${DEPLOY_DIRS[@]}"; do
+              echo "$dir"
+          done
+          echo -e "\nRun deploy on directory:"
+          for dir in "${DEPLOY_DIRS[@]}"; do
+              echo "-> Deploy in: $dir"
+              (cd "$dir" && blade gw clean deploy)
+              echo
+          done
+      
