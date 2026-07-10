@@ -62,6 +62,9 @@ public class GuestSitePagesInitializer
 		_addPage(
 			guestUser, group, "Painel", "/painel",
 			new String[] {_PORTLET_ID_WELCOME, _PORTLET_ID_ASSET_PUBLISHER});
+		_addPage(
+			guestUser, group, "Fórum", "/forum",
+			new String[] {_PORTLET_ID_MESSAGE_BOARDS});
 	}
 
 	private void _addPage(
@@ -168,6 +171,9 @@ public class GuestSitePagesInitializer
 
 	private static final String _PORTLET_ID_DOCUMENT_LIBRARY =
 		"com_liferay_document_library_web_portlet_DLPortlet";
+
+	private static final String _PORTLET_ID_MESSAGE_BOARDS =
+		"com_liferay_message_boards_web_portlet_MBPortlet";
 
 	private static final String _PORTLET_ID_WELCOME =
 		"com_upgradeteste_welcome_WelcomePortlet";
