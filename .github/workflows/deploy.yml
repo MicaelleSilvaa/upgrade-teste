@@ -13,10 +13,18 @@ jobs:
           fetch-depth: 0
       - name: Deploy bundles
         run: |
-          FIRST_COMMIT=$(git log --format="%H" --reverse ${{ github.event.before }}..${{ github.sha }} | head -n 1)
-          echo "$FIRST_COMMIT"
-          git branch
-          CHANGED_FILES=$(git diff --name-only origin/dev-2026.q1.x "$FIRST_COMMIT")
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          # Em push normal, compara o estado anterior (before) com o novo (after).
+          # No primeiro push da branch (before = 40 zeros) ou quando o commit
+          # anterior nao existe localmente, usa o primeiro pai de AFTER.
+          if [[ "$BEFORE" =~ ^0+$ ]] || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+              BASE="${AFTER}~1"
+          else
+              BASE="$BEFORE"
+          fi
+          echo "Comparing $BASE..$AFTER"
+          CHANGED_FILES=$(git diff --name-only "$BASE" "$AFTER")
           echo "Modified files:"
           echo "$CHANGED_FILES"
           DEPLOY_DIRS=()
