@@ -110,6 +110,23 @@ public class GuestSitePagesInitializer
 				_log.info("Página criada: " + name + " (" + friendlyURL + ")");
 			}
 		}
+		else if (!name.equals(layout.getName(locale))) {
+
+			// Página já existe: sincroniza o nome de exibição quando ele muda
+			// no código, mantendo a mesma friendly URL.
+
+			layout.setNameMap(
+				HashMapBuilder.put(
+					locale, name
+				).build());
+
+			layout = _layoutLocalService.updateLayout(layout);
+
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Página renomeada: " + name + " (" + friendlyURL + ")");
+			}
+		}
 
 		LayoutTypePortlet layoutTypePortlet =
 			(LayoutTypePortlet)layout.getLayoutType();
