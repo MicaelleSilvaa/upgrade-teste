@@ -69,7 +69,10 @@ public class GuestSitePagesInitializer
 			guestUser, group, "Upgrades", "/upgrades",
 			new String[] {_PORTLET_ID_WIKI});
 		_addPage(
-			guestUser, group, "Jesus amado", "/testinho",
+			guestUser, group, "Testinho", "/testinho",
+			new String[] {_PORTLET_ID_WIKI});
+		_addPage(
+			guestUser, group, "Jesus amado", "/jesus",
 			new String[] {_PORTLET_ID_WIKI});
 	}
 
