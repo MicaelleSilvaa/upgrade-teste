@@ -76,4 +76,25 @@ jobs:
               done
               echo
           done
+      - name: Sync project source
+        run: |
+          BRANCH="${{ github.ref_name }}"
+
+          PROJECT=$(ls -d /home/me/dev/projects/lfrupg* 2>/dev/null | head -n 1)
+          if [ -z "$PROJECT" ]; then
+              echo "ERROR: no project folder matching /home/me/dev/projects/lfrupg*"
+              echo "Available projects:"
+              ls -d /home/me/dev/projects/*/ 2>/dev/null
+              exit 1
+          fi
+          MATCHES=$(ls -d /home/me/dev/projects/lfrupg* 2>/dev/null | wc -l)
+          if [ "$MATCHES" -gt 1 ]; then
+              echo "WARNING: more than one lfrupg* project, using the first one ($PROJECT):"
+              ls -d /home/me/dev/projects/lfrupg*
+          fi
+          echo "Syncing $PROJECT to origin/$BRANCH"
+          git -C "$PROJECT" fetch origin "$BRANCH"
+          git -C "$PROJECT" checkout -f -B "$BRANCH" "origin/$BRANCH"
+          echo "Now at:"
+          git -C "$PROJECT" log --oneline -1
       
